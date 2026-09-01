@@ -2,16 +2,40 @@ syntax = "proto3";
 
 package birthday;
 
+enum GuestStatus {
+    INVITED = 0;    // Приглашён (по умолчанию, обязательно 0)
+    CONFIRMED = 1;  // Подтвердил
+    REFUSED = 2;    // Отказался
+}
+
 message Address {
 	string city = 1;
 	string street = 2;
 	int32 homeNumber = 3;
 }
 
+message Gift {
+    string name = 1;           // Что подарили
+    string from_who = 2;       // Кто подарил
+    optional string note = 3;  // Записка к подарку
+}
+
 message Guest {
 	string name = 1;
 	int32 age = 2;
-	repeated string gifts = 3;
-	optional string email = 4;
-	Address address = 5;
+	// Агрегация: сколько чего подарили
+	map<string, int32> gifts_count = 3;
+	oneof Contacts {
+    string email = 4;
+    string phone = 5;
+	}
+	GuestStatus status = 6;
+	Address address = 7;
+	optional string drink_preference = 8;
+	// Детали: список конкретных подарков с информацией
+	repeated Gift gifts = 9;
+}
+
+message GuestList {
+    repeated Guest guests = 1;
 }
