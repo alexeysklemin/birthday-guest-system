@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <windows.h>
+#include <fstream>
 #include "Guests.pb.h"
 
 int main()
@@ -276,6 +277,17 @@ int main()
 		}
 		std::cout << "\n";
 	}
+	std::ofstream out2;
+	out2.open("list.bin", std::ios::binary);
+	guest_list.SerializeToOstream(&out2);
+	out2.close();
+	
+	guest_list.Clear();
+	std::ifstream in2;
+	in2.open("list.bin", std::ios::binary);
+	guest_list.ParseFromIstream(&in2);
+	in2.close();
+	
     google::protobuf::ShutdownProtobufLibrary();
 	std::cout << "\n\nНажми Enter для выхода...";
 	std::cin.get();
