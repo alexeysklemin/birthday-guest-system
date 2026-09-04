@@ -288,6 +288,9 @@ int main()
 	guest_list.ParseFromIstream(&in2);
 	in2.close();
 	
+	//смотрим структуру наших данных
+	std::cout << guest_list.DebugString() << "\n";
+	
     google::protobuf::ShutdownProtobufLibrary();
 	std::cout << "\n\nНажми Enter для выхода...";
 	std::cin.get();
