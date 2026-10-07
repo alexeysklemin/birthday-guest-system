@@ -1,6 +1,6 @@
 #include "Guests.pb.h"  // Сгенерированный файл (лежит в build/)
 
-
+#include <google/protobuf/arena.h>
 #include <iostream>
 #include <windows.h>
 #include <fstream>
@@ -8,6 +8,9 @@
 
 int main()
 {
+	// Создаем Арену (как "менеджер памяти")
+    google::protobuf::Arena arena;
+	
     // Настраиваем консоль на UTF-8
 	SetConsoleOutputCP(1251);  // Windows-1251
 	SetConsoleCP(1251);
@@ -290,6 +293,154 @@ int main()
 	
 	//смотрим структуру наших данных
 	std::cout << guest_list.DebugString() << "\n";
+	
+	//Реализация Arena
+	auto* arena_guest_list = google::protobuf::Arena::CreateMessage<birthday::GuestList>(&arena);
+	
+	birthday::Guest* guest_arn;  
+	birthday::Gift* gift_arn;
+
+	// --- Гость 1: Михаил ---
+	guest_arn = arena_guest_list->add_guests(); // -> потому что в Арена используемые объекты (arena_guest_list) указатель
+	guest_arn->set_name("Михаил");
+	guest_arn->set_age(43);
+	guest_arn->set_status(birthday::GuestStatus::CONFIRMED);
+	guest_arn->set_email("mikhail@gmail.com");
+	guest_arn->set_drink_preference("Шампанское");
+
+	birthday::Address* addr_new11 = guest_arn->mutable_address();  // ← меняем имя
+	addr_new11->set_city("Уфа");
+	addr_new11->set_street("Ленина");
+	addr_new11->set_homenumber(42);
+
+	(*guest_arn->mutable_gifts_count())["Книга"] = 1;
+	(*guest_arn->mutable_gifts_count())["Часы"] = 1;
+
+	gift_arn = guest_arn->add_gifts();
+	gift_arn->set_name("Книга");
+	gift_arn->set_from_who("Михаил");
+	gift_arn->set_note("Читай с наслаждением!");
+
+	gift_arn = guest_arn->add_gifts();
+	gift_arn->set_name("Часы");
+	gift_arn->set_from_who("Михаил");
+	// note не задаём
+
+	// --- Гость 2: Ольга ---
+	guest_arn = arena_guest_list->add_guests();
+	guest_arn->set_name("Ольга");
+	guest_arn->set_age(49);
+	guest_arn->set_status(birthday::GuestStatus::CONFIRMED);
+	guest_arn->set_phone("+79033283161");
+	guest_arn->set_drink_preference("Белое");
+
+	birthday::Address* addr_new21 = guest_arn->mutable_address();  // ← меняем имя
+	addr_new21->set_city("Саратов");
+	addr_new21->set_street("Ленина");
+	addr_new21->set_homenumber(42);
+
+	(*guest_arn->mutable_gifts_count())["Картина"] = 1;
+
+	gift_arn = guest_arn->add_gifts();
+	gift_arn->set_name("Картина");
+	gift_arn->set_from_who("Ольга");
+	gift_arn->set_note("Смотри с наслаждением!");
+
+	// --- Гость 3: Татьяна ---
+	guest_arn = arena_guest_list->add_guests();
+	guest_arn->set_name("Татьяна");
+	guest_arn->set_age(51);
+	guest_arn->set_status(birthday::GuestStatus::CONFIRMED);
+	guest_arn->set_phone("+79035383161");
+	guest_arn->set_drink_preference("Водка");
+
+	birthday::Address* addr_new31 = guest_arn->mutable_address();  // ← меняем имя
+	addr_new31->set_city("Саратов");
+	addr_new31->set_street("Пичугина");
+	addr_new31->set_homenumber(42);
+
+	(*guest_arn->mutable_gifts_count())["Кошка"] = 1;
+
+	gift_arn = guest_arn->add_gifts();
+	gift_arn->set_name("Кошка");
+	gift_arn->set_from_who("Татьяна");
+
+		for (int i = 0; i < arena_guest_list->guests_size(); ++i) {
+		std::cout << "DEBUG: Размер списка = " << arena_guest_list->guests_size() << std::endl;
+		const birthday::Guest& guest_arena_current = arena_guest_list->guests(i);  // ← другое имя
+		
+		std::cout << "--- Гость " << i + 1 << " ---\n";
+		std::cout << "Имя: " << guest_arena_current.name() << "\n";
+		std::cout << "Возраст: " << guest_arena_current.age() << "\n";
+		
+		// Статус
+		std::cout << "Статус: ";
+		if (guest_arena_current.status() == birthday::GuestStatus::CONFIRMED) {
+			std::cout << "Подтвердил\n";
+		} else if (guest_arena_current.status() == birthday::GuestStatus::INVITED) {
+			std::cout << "Приглашён\n";
+		} else {
+			std::cout << "Отказался\n";
+		}
+		
+		// Контакт (oneof)
+		std::cout << "Контакт: ";
+		if (guest_arena_current.has_email()) {
+			std::cout << "email: " << guest_arena_current.email() << "\n";
+		} else if (guest_arena_current.has_phone()) {
+			std::cout << "телефон: " << guest_arena_current.phone() << "\n";
+		} else {
+			std::cout << "не указан\n";
+		}
+		
+		// Адрес
+		if (guest_arena_current.has_address()) {
+			std::cout << "Адрес: " << guest_arena_current.address().city() << ", "
+					  << guest_arena_current.address().street() << ", д. "
+					  << guest_arena_current.address().homenumber() << "\n";
+		}
+		
+		// Пожелания по напиткам (optional)
+		if (guest_arena_current.has_drink_preference()) {
+			std::cout << "Пожелания по напиткам: " << guest_arena_current.drink_preference() << "\n";
+		} else {
+			std::cout << "Пожелания по напиткам: не указаны\n";
+		}
+		
+		// Подарки (map)
+		if (guest_arena_current.gifts_count_size() > 0) {
+			std::cout << "Статистика подарков:\n";
+			for (const auto& pair : guest_arena_current.gifts_count()) {
+				std::cout << "  " << pair.first << ": " << pair.second << " шт.\n";
+			}
+		}
+		
+		// Подарки (repeated)
+		if (guest_arena_current.gifts_size() > 0) {
+			std::cout << "Детали подарков:\n";
+			for (int j = 0; j < guest_arena_current.gifts_size(); ++j) {
+				const auto& guest_arena_gifts = guest_arena_current.gifts(j);  // подарок(ки) текущего гостя
+				std::cout << "  " << j + 1 << ". " << guest_arena_current.name()
+						  << " от " << guest_arena_gifts.from_who();
+				if (guest_arena_gifts.has_note()) {
+					std::cout << " | Записка: " << guest_arena_gifts.note();
+				}
+				std::cout << "\n";
+			}
+		}
+		std::cout << "\n";
+	}
+	
+	std::ofstream out_arena;
+	out_arena.open("arena.bin", std::ios::binary);
+	arena_guest_list->SerializeToOstream(&out_arena);
+	out_arena.close();
+	
+	arena_guest_list->Clear();
+	std::ifstream in_arena;
+	in_arena.open("arena.bin", std::ios::binary);
+	arena_guest_list->ParseFromIstream(&in_arena);
+	in_arena.close();
 	
     google::protobuf::ShutdownProtobufLibrary();
 	std::cout << "\n\nНажми Enter для выхода...";
