@@ -2,7 +2,7 @@
 
 #include <google/protobuf/arena.h>
 #include <iostream>
-#include <windows.h>
+
 #include <fstream>
 #include "Guests.pb.h"
 
@@ -11,9 +11,6 @@ int main()
 	// Создаем Арену (как "менеджер памяти")
     google::protobuf::Arena arena;
 	
-    // Настраиваем консоль на UTF-8
-	SetConsoleOutputCP(1251);  // Windows-1251
-	SetConsoleCP(1251);
 		
     GOOGLE_PROTOBUF_VERIFY_VERSION;
     
