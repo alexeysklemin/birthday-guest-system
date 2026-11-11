@@ -1,0 +1,17 @@
+ChatGrpcProject/
+├── main.cpp                      # тонкий диспетчер: server | client
+├── CMakeLists.txt
+├── proto/
+│   └── chat.proto
+├── inc/
+│   ├── server/
+│   │   └── chat_service.h
+│   └── client/
+│       └── chat_client.h
+└── src/
+    ├── server/
+    │   ├── run_server.cpp        
+    │   └── chat_service.cpp
+    └── client/
+        ├── run_client.cpp       
+        └── chat_client.cpp

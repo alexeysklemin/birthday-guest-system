@@ -1,0 +1,43 @@
+syntax = "proto3"
+
+option cc_enable_arenas = true;
+
+enum GuestStarus
+{
+	INVITED =0;
+	CONFIRMED = 1;
+	REFUSED = 2;
+}
+
+message Address 
+{
+	string city = 1;
+	string street = 2;
+	int32 homeNumber = 3;
+}
+
+message Gift
+{
+	string name = 1;
+	optional string note = 3;
+}
+
+message Guest
+{
+	string name = 1;
+	int32 age = 2;
+	oneof Contact
+	{
+		string email = 4;
+		string phone = 5;
+	}
+		GuestStatus status = 6;
+	Address address = 7;
+	optional string drink_preference = 8;
+	repeated Gift gifts = 9;
+}
+
+message GuestList
+{
+	repeated Guest guests =1;
+}

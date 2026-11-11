@@ -12,6 +12,9 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+set(PRJ_HDR_DIR "inc")
+set(PRJ_SRC_DIR "src")
+
 # 1. Ищем Protobuf и gRPC 
 find_package(Protobuf REQUIRED)
 find_package(gRPC CONFIG REQUIRED) # Подключаем модули gRPC для CMake
@@ -48,20 +51,21 @@ foreach(PROTO_FILE ${PROTO_FILES})
 endforeach()
 
 # 5. Находим исходники C++
-file(GLOB FILE_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+file(GLOB_RECURSE HEADERS "${CMAKE_SOURCE_DIR}/${PRJ_HDR_DIR}/*.h" "${CMAKE_SOURCE_DIR}/${PRJ_HDR_DIR}/*.hpp")
+file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/${PRJ_SRC_DIR}/*.cpp")
 
 # 6. Создаем исполняемый файл
 add_executable(birthday-guest-system 
-    ${FILE_SRC} 
+    ${SOURCES}
     ${PROTO_SRCS} 
     ${PROTO_HDRS}
-    ${GRPC_SRCS}   # <-- Добавляем сгенерированные gRPC файлы
+    ${GRPC_SRCS}   
     ${GRPC_HDRS}
 )
 
 # 7. Подключаем заголовочные файлы
 target_include_directories(birthday-guest-system PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/${PRJ_HDR_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}        # Здесь лежат сгенерированные .h файлы
     ${Protobuf_INCLUDE_DIRS}
     ${gRPC_INCLUDE_DIRS}
