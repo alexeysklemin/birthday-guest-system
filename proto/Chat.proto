@@ -1,8 +1,27 @@
-syntax = "proto3"
+syntax = "proto3";
+
+package chat;
 
 option cc_enable_arenas = true;
 
-enum GuestStarus
+// --- Сам сервер ---
+service RegService {
+  rpc GetData (DataRequest) returns (DataResponse);   // Unary
+}
+
+// --- данные к нему ---
+message DataRequest 
+{
+  string key = 1;
+}
+
+message DataResponse 
+{
+  string value = 1;
+  bool   found = 2;
+}
+
+enum GuestStatus
 {
 	INVITED =0;
 	CONFIRMED = 1;

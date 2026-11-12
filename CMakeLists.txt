@@ -56,6 +56,7 @@ file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/${PRJ_SRC_DIR}/*.cpp")
 
 # 6. Создаем исполняемый файл
 add_executable(birthday-guest-system 
+	${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
     ${SOURCES}
     ${PROTO_SRCS} 
     ${PROTO_HDRS}
